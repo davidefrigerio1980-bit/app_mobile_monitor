@@ -3,6 +3,12 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, 
 import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '../services/supabase';
 
+const getScoreColor = (score: number) => {
+  const clampedScore = Math.max(0, Math.min(100, score));
+  const hue = Math.round((clampedScore / 100) * 120);
+  return `hsl(${hue}, 70%, 80%)`;
+};
+
 export default function Dashboard({ navigation }: any) {
   const [assets, setAssets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +97,9 @@ export default function Dashboard({ navigation }: any) {
             <View style={styles.mainMetrics}>
               <View style={styles.metricCol}>
                 <Text style={styles.metricLabel}>Score</Text>
-                <Text style={styles.metricValue}>{item.score}</Text>
+                <View style={[styles.scoreBadge, { backgroundColor: getScoreColor(item.score) }]}>
+              <Text style={styles.scoreText}>{item.score}</Text>
+            </View>
               </View>
               <View style={styles.metricCol}>
                 <Text style={styles.metricLabel}>Trend 50/200</Text>
@@ -126,6 +134,11 @@ export default function Dashboard({ navigation }: any) {
                   <SignalBadge label="SMA20" active={item.sig_sma20} />
                   <SignalBadge label="GC" active={item.sig_gc} />
                 </View>
+
+                <View style={[styles.scoreBadge, { backgroundColor: getScoreColor(item.score) }]}>
+        <Text style={styles.scoreText}>{item.score}</Text>
+      </View>
+
               </View>
             )}
           </>
@@ -190,7 +203,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: 'white' },
   container: { flex: 1, backgroundColor: '#f4f6f8' },
   header: { 
-    padding: 20, 
+    padding: 12, 
     paddingTop: Platform.OS === 'android' ? 40 : 20, 
     backgroundColor: 'white', 
     borderBottomWidth: 1, 
@@ -198,13 +211,25 @@ const styles = StyleSheet.create({
   },
   headerLogo: {
     width: 200,
-    height: 42,
-    marginBottom: 6,
-    marginLeft: -10,
+    height: 52,
+    marginBottom: 2,
+    marginLeft: -13,
   },
   subtitle: { fontSize: 13, color: '#556', fontStyle: 'italic' },
   list: { flex: 1, padding: 16 },
   card: { backgroundColor: 'white', padding: 16, borderRadius: 10, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
+  scoreBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 45,
+  },
+  scoreText: {
+    fontWeight: 'bold',
+    color: '#14202b',
+  },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 8 },
   symbol: { fontSize: 18, fontWeight: 'bold', color: '#14202b', width: 70 },
   name: { fontSize: 14, color: '#556', flex: 1 },
@@ -213,7 +238,7 @@ const styles = StyleSheet.create({
   metricLabel: { fontSize: 11, color: '#8a96a3', marginBottom: 4, textTransform: 'uppercase' },
   metricValue: { fontSize: 13, fontWeight: 'bold', color: '#14202b' },
   metricBadge: { 
-    width: 65,
+    width: 55,
     textAlign: 'center',
     fontSize: 9, 
     fontWeight: 'bold', 
